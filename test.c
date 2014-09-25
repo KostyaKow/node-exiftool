@@ -8,29 +8,35 @@ int test(char* str) {
    return fclose(f);
 }
 
-char* get_data(char* dir) {
-   char* command = malloc(strlen(dir) + 100);
-   sprintf(command, "../Image-ExifTool-9.70/exiftool %s", dir);
-   FILE* f = popen(command, "r");
-
-   free(command);
-
-   int pos = 0, len = 2048;
-   char* buf = malloc(len);
-
-   while (true) {
-   fgets(buf, 1024, f)
-   }
-   
-   pclose(f);
-   return buf;
-}
-
+//like system(), but returns string instead of sending result to output
 char* system_str(char* command) {
    FILE* f = popen(command, "r");
-   char* buf = malloc(2048);
-   while (fgets(buf, 1024, f)) ;
+   int pos = 0, len = 2048;
+   char* buf = NULL;
 
+   while (!feof(f)) {
+      pos += 1024;
+      if (pos >= len || !buf) {
+         len *= 2;
+         buf = realloc(buf, len);
+      }
+
+      if (fgets(buf, 1024, f) == NULL)
+         break;
+   }
+
+   buf = realloc(buf, pos);
    pclose(f);
    return buf;
 }
+
+char* get_data(char* dir) {
+   char* command = malloc(strlen(dir) + 50); //50 is about the length of string below
+   sprintf(command, "../Image-ExifTool-9.70/exiftool %s", dir);
+   
+   char* result = system_str(command);
+
+   free(command);
+   return result;
+}
+

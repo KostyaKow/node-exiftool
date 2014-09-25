@@ -1,3 +1,10 @@
-*.o
+*.swp
+*.swo
+faymos
+*~
+*.layout
+libs/
+misc/
 *.so.*
 *.so
+*.o

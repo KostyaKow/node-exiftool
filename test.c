@@ -11,22 +11,16 @@ int test(char* str) {
 //like system(), but returns string instead of sending result to output
 char* system_str(char* command) {
    FILE* f = popen(command, "r");
-   int pos = 0, len = 2048;
-   char* buf = NULL;
 
-   while (!feof(f)) {
-      pos += 1024;
-      if (pos >= len || !buf) {
-         len *= 2;
-         buf = realloc(buf, len);
-      }
+   fseek(f, 0, SEEK_END);
+   long fsize = ftell(f);
+   fseek(f, 0, SEEK_SET);
 
-      if (fgets(buf, 1024, f) == NULL)
-         break;
-   }
+   char* buf = malloc(fsize + 1);
+    fread(buf, fsize, 1, f);
 
-   buf = realloc(buf, pos);
    pclose(f);
+   buf[fsize] = 0;
    return buf;
 }
 

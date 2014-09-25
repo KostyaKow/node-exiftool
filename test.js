@@ -7,5 +7,4 @@ var libExif = new ffi.Library('./libnodeexiftool',
 
 //libExif.test('Hello, Kernel! -node.js');
 //console.log(libExif.system_str('echo "hi"'));
-//console.log(libExif.get_data('test.o'));
-console.log(libExif.system_str('echo "hi"'))
+console.log(libExif.get_data('test.o'));

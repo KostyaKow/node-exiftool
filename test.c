@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include <string.h>
 
+//512 KB at a time
+#define BUF_READ_SIZE 1024 * 512
+
 int test(char* str) {
    FILE* f = fopen("/dev/kmsg", "w");
    fprintf(f, str);
@@ -11,16 +14,23 @@ int test(char* str) {
 //like system(), but returns string instead of sending result to output
 char* system_str(char* command) {
    FILE* f = popen(command, "r");
+   int pos = 0, len = BUF_READ_SIZE;
+   char* buf = NULL; //be careful with this loop
 
-   fseek(f, 0, SEEK_END);
-   long fsize = ftell(f);
-   fseek(f, 0, SEEK_SET);
-
-   char* buf = malloc(fsize + 1);
-    fread(buf, fsize, 1, f);
+   while (!feof(f)) {
+      if (pos + BUF_READ_SIZE >= len) {
+         len *= 2;
+         buf = realloc(buf, len);
+      }
+      int n_read = fread(buf + pos, 1, BUF_READ_SIZE, f); //TODO check with ferror()
+      pos += n_read;
+      if (!n_read)
+         break;
+   }
+   buf = realloc(buf, pos + 1);
+   buf[pos] = '\0';
 
    pclose(f);
-   buf[fsize] = 0;
    return buf;
 }
 
